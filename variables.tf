@@ -40,3 +40,11 @@ variable "security_group_allow_internal_smtps" {
   type    = bool
   default = false
 }
+variable "internet_gateway" {
+  type    = bool
+  default = false
+}
+variable "outgoing_internet_access" {
+  type    = bool
+  default = false
+}

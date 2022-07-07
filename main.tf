@@ -63,3 +63,14 @@ resource "aws_security_group_rule" "allow-internal-smtps" {
   cidr_blocks       = [for k,v in aws_subnet.private-subnet: v.cidr_block]
   security_group_id =  aws_security_group.default[0].id
 }
+resource "aws_internet_gateway" "igw" {
+  count             = (true == var.internet_gateway) ? 1 : 0
+  vpc_id = aws_vpc.vpc.id
+}
+
+resource "aws_route" "internet_access" {
+  count                  = (true == var.internet_gateway && true == var.outgoing_internet_access) ? 1 : 0
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw[0].id
+}
