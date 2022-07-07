@@ -48,3 +48,15 @@ variable "outgoing_internet_access" {
   type    = bool
   default = false
 }
+variable "ecr_support" {
+  type    = bool
+  default = false
+}
+variable "cloudwatch_support" {
+  type    = bool
+  default = false
+}
+variable "s3_support" {
+  type    = bool
+  default = false
+}
