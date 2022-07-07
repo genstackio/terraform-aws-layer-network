@@ -6,5 +6,5 @@ locals {
 
 locals {
   subnets = aws_subnet.private-subnet
-  security_groups = [aws_security_group.default.id]
+  security_groups = aws_security_group.default.*.id
 }
