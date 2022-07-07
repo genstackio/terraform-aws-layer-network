@@ -36,3 +36,23 @@ module "vpc-endpoint-s3" {
   vpc_id         = aws_vpc.vpc.id
   route_table_id = aws_route_table.private.id
 }
+
+module "vpc-endpoint-sns" {
+  count              = (true == var.sns_support) ? 1 : 0
+  source             = "genstackio/vpc-endpoint/aws"
+  version            = "0.2.0"
+  service            = "sns"
+  vpc_id             = aws_vpc.vpc.id
+  security_group_ids = local.security_groups
+  subnet_ids         = local.subnet_ids
+}
+
+module "vpc-endpoint-ses" {
+  count              = (true == var.ses_support) ? 1 : 0
+  source             = "genstackio/vpc-endpoint/aws"
+  version            = "0.2.0"
+  service            = "ses"
+  vpc_id             = aws_vpc.vpc.id
+  security_group_ids = local.security_groups
+  subnet_ids         = local.subnet_ids
+}

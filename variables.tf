@@ -60,3 +60,11 @@ variable "s3_support" {
   type    = bool
   default = false
 }
+variable "ses_support" {
+  type    = bool
+  default = false
+}
+variable "sns_support" {
+  type    = bool
+  default = false
+}
