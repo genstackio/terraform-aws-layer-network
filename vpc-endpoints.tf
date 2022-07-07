@@ -15,7 +15,7 @@ module "vpc-endpoint-ecr_dkr" {
   service            = "ecr_dkr"
   vpc_id             = aws_vpc.vpc.id
   security_group_ids = local.security_groups
-  subnet_ids         = var.subnets
+  subnet_ids         = local.subnets
 }
 
 module "vpc-endpoint-cloudwatch" {
@@ -25,7 +25,7 @@ module "vpc-endpoint-cloudwatch" {
   service            = "cloudwatch"
   vpc_id             = aws_vpc.vpc.id
   security_group_ids = local.security_groups
-  subnet_ids         = var.subnets
+  subnet_ids         = local.subnets
 }
 
 module "vpc-endpoint-s3" {
