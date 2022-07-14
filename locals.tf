@@ -6,6 +6,8 @@ locals {
   public_subnet_names = tolist(keys(local.public_subnets))
   azs_map      = {for k,v in data.aws_availability_zones.available.names: local.subnet_names[k] => v}
   name         = format("%s-%s-sg", var.env, var.name)
+  has_public_subnets = length(tolist(keys(local.public_subnets))) > 0
+  has_private_subnets = length(tolist(keys(local.private_subnets))) > 0
 }
 
 locals {

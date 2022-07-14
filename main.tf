@@ -32,13 +32,13 @@ resource "aws_subnet" "public-subnet" {
 }
 
 resource "aws_eip" "nat" {
-  for_each   = length(local.public_subnets) ? local.public_subnets : {}
+  for_each   = local.has_public_subnets ? local.public_subnets : {}
   vpc        = true
   depends_on = [aws_internet_gateway.igw[0]]
 }
 
 resource "aws_nat_gateway" "nat" {
-  for_each      = length(local.public_subnets) ? local.public_subnets : {}
+  for_each      = local.has_public_subnets ? local.public_subnets : {}
   subnet_id     = aws_subnet.public-subnet[each.key].id
   allocation_id = aws_eip.nat[each.key].id
 }
@@ -94,6 +94,6 @@ resource "aws_route" "internet_access" {
   count                  = (true == var.internet_gateway && true == var.outgoing_internet_access) ? 1 : 0
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = length(local.public_subnets) > 0 ? null : aws_internet_gateway.igw[0].id
-  nat_gateway_id         = length(local.public_subnets) > 0 ? aws_nat_gateway.nat[tolist(keys(local.public_subnets))[0]].id : null
+  gateway_id             = local.has_public_subnets ? null : aws_internet_gateway.igw[0].id
+  nat_gateway_id         = local.has_public_subnets ? aws_nat_gateway.nat[tolist(keys(local.public_subnets))[0]].id : null
 }
