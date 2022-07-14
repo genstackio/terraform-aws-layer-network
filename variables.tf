@@ -60,7 +60,27 @@ variable "s3_support" {
   type    = bool
   default = false
 }
+variable "dynamodb_support" {
+  type    = bool
+  default = false
+}
+variable "eventbridge_support" {
+  type    = bool
+  default = false
+}
 variable "ses_support" {
+  type    = bool
+  default = false
+}
+variable "sqs_support" {
+  type    = bool
+  default = false
+}
+variable "lambda_support" {
+  type    = bool
+  default = false
+}
+variable "secretsmanager_support" {
   type    = bool
   default = false
 }
