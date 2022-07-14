@@ -34,7 +34,7 @@ resource "aws_subnet" "public-subnet" {
 resource "aws_eip" "nat" {
   for_each   = length(local.public_subnets) ? local.public_subnets : {}
   vpc        = true
-  depends_on = (true == var.internet_gateway) ? [aws_internet_gateway.igw[0]] : []
+  depends_on = aws_internet_gateway.igw
 }
 
 resource "aws_nat_gateway" "nat" {
