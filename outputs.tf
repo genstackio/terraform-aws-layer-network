@@ -8,6 +8,15 @@ output "vpc_id" {
   value = aws_vpc.vpc.id
 }
 output "subnets" {
+  value = merge(
+    aws_subnet.private-subnet,
+    aws_subnet.public-subnet,
+  )
+}
+output "public_subnets" {
+  value = aws_subnet.public-subnet
+}
+output "private_subnets" {
   value = aws_subnet.private-subnet
 }
 output "route_tables" {
