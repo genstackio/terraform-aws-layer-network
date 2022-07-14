@@ -12,7 +12,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_subnet" "private-subnet" {
-  for_each          = var.subnets
+  for_each          = local.private_subnets
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = lookup(each.value, "cidr_block", var.cidr_block)
   availability_zone = local.azs_map[each.key]
@@ -21,8 +21,30 @@ resource "aws_subnet" "private-subnet" {
   }
 }
 
+resource "aws_subnet" "public-subnet" {
+  for_each   = local.public_subnets
+  vpc_id     = aws_vpc.vpc.id
+  cidr_block = lookup(each.value, "cidr_block", var.cidr_block)
+  lifecycle {
+    create_before_destroy = true
+  }
+  map_public_ip_on_launch = true
+}
+
+resource "aws_eip" "nat" {
+  for_each   = length(local.public_subnets) ? local.public_subnets : {}
+  vpc        = true
+  depends_on = (true == var.internet_gateway) ? [aws_internet_gateway.igw[0]] : []
+}
+
+resource "aws_nat_gateway" "nat" {
+  for_each      = length(local.public_subnets) ? local.public_subnets : {}
+  subnet_id     = aws_subnet.public-subnet[each.key].id
+  allocation_id = aws_eip.nat[each.key].id
+}
+
 resource "aws_route_table_association" "private" {
-  for_each       = var.subnets
+  for_each       = local.private_subnets
   subnet_id      = aws_subnet.private-subnet[each.key].id
   route_table_id = aws_route_table.private.id
 }
@@ -72,5 +94,6 @@ resource "aws_route" "internet_access" {
   count                  = (true == var.internet_gateway && true == var.outgoing_internet_access) ? 1 : 0
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.igw[0].id
+  gateway_id             = length(local.public_subnets) > 0 ? null : aws_internet_gateway.igw[0].id
+  nat_gateway_id         = length(local.public_subnets) > 0 ? aws_nat_gateway.nat[tolist(keys(local.public_subnets))[0]].id : null
 }
