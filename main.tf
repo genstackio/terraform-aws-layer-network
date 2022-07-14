@@ -11,6 +11,11 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.vpc.id
 }
 
+resource "aws_route_table" "public" {
+  for_each = local.public_subnets
+  vpc_id = aws_vpc.vpc.id
+}
+
 resource "aws_subnet" "private-subnet" {
   for_each          = local.private_subnets
   vpc_id            = aws_vpc.vpc.id
@@ -48,6 +53,12 @@ resource "aws_route_table_association" "private" {
   for_each       = local.private_subnets
   subnet_id      = aws_subnet.private-subnet[each.key].id
   route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "private" {
+  for_each       = local.public_subnets
+  subnet_id      = aws_subnet.public-subnet[each.key].id
+  route_table_id = aws_route_table.public[each.key].id
 }
 
 resource "aws_security_group" "default" {
@@ -91,10 +102,16 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 }
 
-resource "aws_route" "internet_access" {
+resource "aws_route" "internet_access_from_private" {
   count                  = (true == var.internet_gateway && true == var.outgoing_internet_access) ? 1 : 0
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = local.has_public_subnets ? null : aws_internet_gateway.igw[0].id
   nat_gateway_id         = local.has_public_subnets ? aws_nat_gateway.nat[tolist(keys(local.public_subnets))[0]].id : null
+}
+
+resource "aws_route" "internet_access" {
+  for_each = local.public_subnets
+  route_table_id         = aws_route_table.public[each.key].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.igw[0].id
 }
