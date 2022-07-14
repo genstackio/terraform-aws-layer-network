@@ -15,7 +15,7 @@ resource "aws_subnet" "private-subnet" {
   for_each          = local.private_subnets
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = lookup(each.value, "cidr_block", var.cidr_block)
-  availability_zone = local.azs_map[each.key]
+  availability_zone = local.private_azs_map[each.key]
   lifecycle {
     create_before_destroy = true
   }
@@ -25,6 +25,7 @@ resource "aws_subnet" "public-subnet" {
   for_each   = local.public_subnets
   vpc_id     = aws_vpc.vpc.id
   cidr_block = lookup(each.value, "cidr_block", var.cidr_block)
+  availability_zone = local.public_azs_map[each.key]
   lifecycle {
     create_before_destroy = true
   }
